@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente de RH Interactivo - Búsqueda de Empleo con IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            min-height: 95vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .help-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .help-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            height: calc(95vh - 120px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .content-area {
+            padding: 20px;
+            background: white;
+            overflow-y: auto;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 10px;
+            padding: 18px;
+            margin: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+            transition: transform 0.2s ease;
+            font-size: 1em;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .cargo-selector, .skills-selector, .competencias-selector {
+            margin-top: 10px;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #fafafa;
+        }
+
+        .cargo-option, .skill-option, .competencia-option {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .cargo-option:hover, .skill-option:hover, .competencia-option:hover {
+            background: #e3f2fd;
+            border-color: #4facfe;
+            transform: translateX(3px);
+        }
+
+        .cargo-option.selected, .skill-option.selected, .competencia-option.selected {
+            background: #4facfe;
+            color: white;
+            border-color: #4facfe;
+            transform: translateX(3px);
+        }
+
+        .cargo-placeholder, .skills-placeholder, .competencias-placeholder {
+            color: #666;
+            font-style: italic;
+            font-size: 0.85em;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .job-portals {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .portal-link {
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            padding: 12px 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.85em;
+        }
+
+        .portal-link.linkedin {
+            background: #0077b5;
+        }
+
+        .portal-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .portal-link.linkedin:hover {
+            box-shadow: 0 5px 15px rgba(0, 119, 181, 0.3);
+        }
+
+        .search-results {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-result-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 3px solid #4facfe;
+            font-size: 0.85em;
+        }
+
+        .prompts-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prompts-header h3 {
+            color: #333;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quick-start {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.85em;
+            color: #2e7d32;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .prompts-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .prompt-tab {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 14px 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            min-height: 75px;
+            justify-content: center;
+        }
+
+        .prompt-tab:hover {
+            background: #e3f2fd;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+        }
+
+        .prompt-tab.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-color: #4facfe;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .prompt-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .prompt-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .prompt-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .prompt-text {
+            background: #f8f9fa;
+            padding: 18px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .variable-text {
+            background: #fff3cd;
+            color: #856404;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            border: 1px solid #ffeaa7;
+            display: inline-block;
+            margin: 1px;
+        }
+
+        .prompt-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 14px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .ai-link {
+            text-align: center;
+            padding: 12px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .copilot-link {
+            background: #0078d4;
+            color: white;
+        }
+
+        .gemini-link {
+            background: #4285f4;
+            color: white;
+        }
+
+        .ai-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 1000;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 280px 1fr;
+            }
+            
+            .prompts-nav {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                margin: 5px;
+                border-radius: 15px;
+                min-height: 98vh;
+            }
+            
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+                height: auto;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                max-height: none;
+            }
+            
+            .prompts-nav {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .prompt-tab {
+                min-height: 60px;
+                font-size: 0.8em;
+                padding: 8px 6px;
+            }
+            
+            .job-portals {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+
+            .prompts-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .quick-start {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.6em;
+            }
+            
+            .prompts-nav {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            
+            .prompt-tab {
+                min-height: 50px;
+                font-size: 0.75em;
+                padding: 6px 4px;
+            }
+            
+            .prompt-actions {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .job-portals {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .form-section {
+                margin: 10px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .prompts-nav {
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
+            }
+            
+            .prompt-tab {
+                font-size: 0.7em;
+                min-height: 45px;
+            }
+            
+            .form-section {
+                margin: 8px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Agente de RH Interactivo</h1>
+            <p>Tu asistente inteligente para la búsqueda de empleo con IA</p>
+            <button class="help-toggle" onclick="mostrarAyuda()">❓</button>
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar con Perfil y Búsqueda -->
+            <div class="sidebar">
+                <!-- Registro Demográfico -->
+                <div class="form-section">
+                    <h3>📋 Registro del Aspirante</h3>
+                    <div class="form-group">
+                        <label>Nombre Completo:</label>
+                        <input type="text" id="nombreCompleto" placeholder="Tu nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label>País:</label>
+                        <select id="pais">
+                            <option value="">Selecciona tu país</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="Brasil">Brasil</option>
+                            <option value="Chile">Chile</option>
+                            <option value="Colombia">Colombia</option>
+                            <option value="México">México</option>
+                            <option value="Perú">Perú</option>
+                            <option value="Ecuador">Ecuador</option>
+                            <option value="Uruguay">Uruguay</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Años de Experiencia:</label>
+                        <select id="experiencia">
+                            <option value="">Selecciona</option>
+                            <option value="0-2">0-2 años</option>
+                            <option value="3-5">3-5 años</option>
+                            <option value="6-10">6-10 años</option>
+                            <option value="10+">Más de 10 años</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Área Profesional:</label>
+                        <select id="areaProfesional" onchange="actualizarCargos()">
+                            <option value="">Selecciona</option>
+                            <option value="Recursos Humanos">Recursos Humanos</option>
+                            <option value="Finanzas">Finanzas</option>
+                            <option value="Tecnología de la Información">Tecnología de la Información</option>
+                            <option value="Ventas & Marketing">Ventas & Marketing</option>
+                            <option value="Ingeniería">Ingeniería</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cargo Actual/Deseado:</label>
+                        <select id="cargoDeseado" onchange="actualizarCompetencias()">
+                            <option value="">Selecciona primero el área</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="guardarPerfil()">💾 Guardar Perfil</button>
+                </div>
+
+                <!-- Competencias y Especializaciones -->
+                <div class="form-section">
+                    <h3>🎯 Competencias & Especializaciones</h3>
+                    <div class="form-group">
+                        <label>Selecciona 2 competencias principales:</label>
+                        <div class="competencias-selector" id="competenciasSelector">
+                            <div class="competencias-placeholder">Selecciona primero tu cargo deseado</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Habilidades Blandas -->
+                <div class="form-section">
+                    <h3>💪 Habilidades Blandas</h3>
+                    <div class="form-group">
+                        <label>Selecciona 2 habilidades principales:</label>
+                        <div class="skills-selector" id="skillsSelector">
+                            <div class="skills-placeholder">Selecciona tus fortalezas principales</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Búsqueda de Empleos -->
+                <div class="form-section">
+                    <h3>🔍 Búsqueda de Empleos</h3>
+                    <div class="form-group">
+                        <label>Selecciona cargos de interés (máx. 2):</label>
+                        <div class="cargo-selector" id="cargosSelector">
+                            <div class="cargo-placeholder">Selecciona primero tu área profesional</div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="buscarEmpleos()">🔍 Buscar Empleos</button>
+                    <div class="job-portals">
+                        <a href="#" class="portal-link" onclick="buscarEnPortal('elempleo')">ElEmpleo</a>
+                        <a href="#" class="portal-link" onclick="buscarEnPortal('computrabajo')">CompuTrabajo</a>
+                        <a href="#" class="portal-link linkedin" onclick="buscarEnPortal('linkedin')">LinkedIn</a>
+                    </div>
+                    <div class="search-results" id="searchResults">
+                        <!-- Resultados de búsqueda aparecerán aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Contenido Principal -->
+            <div class="content-area">
+                <div class="prompts-header">
+                    <h3>📚 Guía de Prompts IA - Selecciona, Copia y Personaliza</h3>
+                    <div class="quick-start">
+                        <span>💡</span>
+                        <span>Haz clic en una categoría → Copia el prompt → Personaliza → Usa en IA</span>
+                    </div>
+                </div>
+
+                <!-- Navegación de Prompts -->
+                <div class="prompts-nav">
+                    <div class="prompt-tab active" onclick="mostrarPrompts('mercado')">
+                        <span>🎯</span>
+                        <span>Mercado</span>
+                    </div>
+                    <div class="prompt-tab" onclick="mostrarPrompts('entrevistas')">
+                        <span>💼</span>
+                        <span>Entrevistas</span>
+                    </div>
+                    <div class="prompt-tab" onclick="mostrarPrompts('curriculum')">
+                        <span>📄</span>
+                        <span>Currículum</span>
+                    </div>
+                    <div class="prompt-tab" onclick="mostrarPrompts('cartas')">
+                        <span>✉️</span>
+                        <span>Cartas</span>
+                    </div>
+                    <div class="prompt-tab" onclick="mostrarPrompts('filtrado')">
+                        <span>🔍</span>
+                        <span>Filtrado</span>
+                    </div>
+                    <div class="prompt-tab" onclick="mostrarPrompts('habilidades')">
+                        <span>💪</span>
+                        <span>Habilidades</span>
+                    </div>
+                    <div class="prompt-tab" onclick="mostrarPrompts('seguimiento')">
+                        <span>📞</span>
+                        <span>Seguimiento</span>
+                    </div>
+                    <div class="prompt-tab" onclick="mostrarPrompts('negociacion')">
+                        <span>💰</span>
+                        <span>Negociación</span>
+                    </div>
+                </div>
+
+                <!-- Contenido de Prompts -->
+                <div id="promptsContainer">
+                    <!-- Los prompts se cargarán aquí dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Catálogo de cargos por área profesional
+        const catalogoCargos = {
+            "Recursos Humanos": [
+                "Analista Senior de RRHH",
+                "Jefe de Recursos Humanos", 
+                "Gerente de Recursos Humanos",
+                "Director de Recursos Humanos",
+                "Especialista en Desarrollo Organizacional",
+                "Consultor en Gestión del Talento",
+                "Coordinador de Capacitación",
+                "Analista de Compensaciones"
+            ],
+            "Finanzas": [
+                "Analista Financiero Senior",
+                "Jefe de Finanzas",
+                "Gerente Financiero", 
+                "Director Financiero (CFO)",
+                "Controller",
+                "Analista de Riesgos",
+                "Especialista en Modelado Financiero",
+                "Auditor Interno"
+            ],
+            "Tecnología de la Información": [
+                "Analista de Sistemas Senior",
+                "Jefe de TI",
+                "Gerente de TI",
+                "Director de TI (CIO)",
+                "Desarrollador Full Stack",
+                "Ingeniero de Software",
+                "Especialista en DevOps",
+                "Arquitecto de Soluciones"
+            ],
+            "Ventas & Marketing": [
+                "Analista de Marketing Senior",
+                "Jefe de Ventas",
+                "Gerente de Marketing",
+                "Director de Marketing (CMO)",
+                "Especialista en Marketing Digital",
+                "Ejecutivo de Ventas",
+                "Gerente de Cuentas Clave",
+                "Coordinador de Comunicaciones"
+            ],
+            "Ingeniería": [
+                "Analista de Ingeniería Senior",
+                "Jefe de Ingeniería",
+                "Gerente de Ingeniería",
+                "Director de Ingeniería",
+                "Ingeniero de Procesos",
+                "Especialista en Automatización",
+                "Coordinador de Proyectos",
+                "Ingeniero de Calidad"
+            ]
+        };
+
+        // Catálogo de competencias y especializaciones por cargo
+        const competenciasPorCargo = {
+            "Analista Senior de RRHH": ["Gestión del Talento", "Análisis de Datos HR", "Reclutamiento Digital", "Employee Experience"],
+            "Jefe de Recursos Humanos": ["Liderazgo de Equipos", "Estrategia Organizacional", "Gestión del Cambio", "Desarrollo de Políticas"],
+            "Gerente de Recursos Humanos": ["Transformación Digital HR", "People Analytics", "Cultura Organizacional", "Gestión de Performance"],
+            "Director de Recursos Humanos": ["Estrategia Corporativa", "Transformación Organizacional", "Liderazgo Ejecutivo", "Innovación en HR"],
+            "Analista Financiero Senior": ["Modelado Financiero", "Análisis de Riesgos", "Valuación de Empresas", "Business Intelligence"],
+            "Jefe de Finanzas": ["Planificación Financiera", "Control de Gestión", "Análisis de Inversiones", "Reporting Ejecutivo"],
+            "Gerente Financiero": ["Estrategia Financiera", "Fusiones y Adquisiciones", "Gestión de Tesorería", "Compliance Financiero"],
+            "Director Financiero (CFO)": ["Estrategia Corporativa", "Relaciones con Inversionistas", "Transformación Digital", "Liderazgo Financiero"],
+            "Desarrollador Full Stack": ["JavaScript/TypeScript", "React/Angular", "Node.js/Python", "Bases de Datos"],
+            "Ingeniero de Software": ["Arquitectura de Software", "Microservicios", "DevOps/CI-CD", "Cloud Computing"],
+            "Especialista en DevOps": ["Kubernetes/Docker", "AWS/Azure", "Automatización", "Monitoreo y Logging"],
+            "Arquitecto de Soluciones": ["Diseño de Sistemas", "Integración de APIs", "Seguridad Informática", "Escalabilidad"],
+            "Especialista en Marketing Digital": ["Google Ads/Facebook Ads", "SEO/SEM", "Analytics", "Marketing Automation"],
+            "Ejecutivo de Ventas": ["CRM Management", "Negociación B2B", "Prospección Digital", "Account Management"],
+            "Gerente de Marketing": ["Estrategia de Marca", "Marketing Mix", "ROI Marketing", "Gestión de Equipos"],
+            "Director de Marketing (CMO)": ["Estrategia Digital", "Transformación Marketing", "Customer Journey", "Liderazgo Comercial"]
+        };
+
+        // Catálogo de habilidades blandas
+        const habilidadesBlandas = [
+            "Liderazgo",
+            "Comunicación Efectiva",
+            "Trabajo en Equipo",
+            "Resolución de Problemas",
+            "Adaptabilidad",
+            "Pensamiento Crítico",
+            "Gestión del Tiempo",
+            "Creatividad e Innovación",
+            "Inteligencia Emocional",
+            "Negociación"
+        ];
+
+        // Datos del usuario
+        let perfilUsuario = {};
+        let cargosSeleccionados = [];
+        let habilidadesSeleccionadas = [];
+        let competenciasSeleccionadas = [];
+
+        // Prompts organizados por sección
+        const prompts = {
+            mercado: [
+                {
+                    titulo: "Mercado Objetivo para Recursos Humanos",
+                    texto: `Analiza las tendencias actuales en el mercado laboral para perfiles de [ÁREA PROFESIONAL], enfocándote en roles como [CARGO ESPECÍFICO]. Identifica las industrias y compañías que están en búsqueda activa de estos perfiles en [PAÍS], especificando las habilidades y competencias más demandadas, como [COMPETENCIA 1], [COMPETENCIA 2], y habilidades blandas como [HABILIDAD 1] y [HABILIDAD 2].`
+                },
+                {
+                    titulo: "Mercado Objetivo para Perfiles Financieros", 
+                    texto: `Realiza un análisis detallado del mercado objetivo para perfiles financieros en [PAÍS], incluyendo roles como [CARGO DESEADO]. Investiga las tendencias del mercado en sectores como la banca, la tecnología financiera (FinTech), y las empresas de servicios, enfocándote en competencias como [COMPETENCIA 1] y [COMPETENCIA 2] con [AÑOS DE EXPERIENCIA] años de experiencia.`
+                },
+                {
+                    titulo: "Mercado Objetivo para Tecnología",
+                    texto: `Analiza tendencias para [ÁREA PROFESIONAL], enfocándote en roles como [CARGO DESEADO] en [PAÍS]. Investiga industrias en crecimiento como FinTech, e-commerce, e inteligencia artificial, destacando competencias técnicas como [COMPETENCIA 1] y [COMPETENCIA 2], y habilidades como [HABILIDAD 1] y [HABILIDAD 2] con [AÑOS DE EXPERIENCIA] años de experiencia.`
+                }
+            ],
+            entrevistas: [
+                {
+                    titulo: "Preparación de Entrevista Personalizada",
+                    texto: `Quiero prepararme para una entrevista para el puesto de [CARGO DESEADO] en [PAÍS]. Analiza las preguntas más frecuentes y desafiantes que los entrevistadores están haciendo en la actualidad para este rol, considerando mi experiencia de [AÑOS DE EXPERIENCIA] años. Incluye preguntas que evalúen mi experiencia en [COMPETENCIA 1], [COMPETENCIA 2], y habilidades blandas como [HABILIDAD 1] y [HABILIDAD 2].`
+                },
+                {
+                    titulo: "Preparación de Entrevista Técnica",
+                    texto: `Necesito prepararme para una entrevista técnica para el puesto de [CARGO DESEADO] en [PAÍS]. Identifica las preguntas más comunes y relevantes que evalúan competencias específicas como [COMPETENCIA 1] y [COMPETENCIA 2]. Incluye preguntas situacionales que demuestren mis habilidades en [HABILIDAD 1] y [HABILIDAD 2] considerando mis [AÑOS DE EXPERIENCIA] años de experiencia.`
+                }
+            ],
+            curriculum: [
+                {
+                    titulo: "Mejora del CV Personalizado",
+                    texto: `Mejora mi currículum enfocándote en mi experiencia en [ÁREA PROFESIONAL] para un puesto de [CARGO DESEADO] en [PAÍS]. Resalta mis logros con [AÑOS DE EXPERIENCIA] años de experiencia en [COMPETENCIA 1] y [COMPETENCIA 2], utilizando datos cuantificables. Destaca también mis habilidades blandas como [HABILIDAD 1] y [HABILIDAD 2].`
+                },
+                {
+                    titulo: "Optimización de CV por Competencias",
+                    texto: `Optimiza mi currículum para hacerlo más atractivo para roles en [ÁREA PROFESIONAL] como [CARGO DESEADO] en [PAÍS]. Enfócate en cómo destacar mi experiencia con [AÑOS DE EXPERIENCIA] años en [COMPETENCIA 1] y [COMPETENCIA 2]. Proporciona ejemplos de cómo estructurar logros que demuestren [HABILIDAD 1] y [HABILIDAD 2].`
+                }
+            ],
+            cartas: [
+                {
+                    titulo: "Carta de Presentación Personalizada",
+                    texto: `Redacta una carta de presentación para un puesto en [ÁREA PROFESIONAL] como [CARGO DESEADO] en [PAÍS], destacando mi experiencia de [AÑOS DE EXPERIENCIA] años en [COMPETENCIA 1] y [COMPETENCIA 2]. Incluye ejemplos de proyectos exitosos donde he demostrado [HABILIDAD 1] y [HABILIDAD 2].`
+                }
+            ],
+            filtrado: [
+                {
+                    titulo: "Filtrado de Ofertas Personalizadas",
+                    texto: `Filtra las ofertas laborales más relevantes en [ÁREA PROFESIONAL] que se ajusten a mi perfil de [CARGO DESEADO] en [PAÍS]. Analiza las tendencias actuales para identificar habilidades demandadas como [COMPETENCIA 1] y [COMPETENCIA 2], considerando mis [AÑOS DE EXPERIENCIA] años de experiencia y fortalezas en [HABILIDAD 1] y [HABILIDAD 2].`
+                }
+            ],
+            habilidades: [
+                {
+                    titulo: "Identificación de Fortalezas Profesionales",
+                    texto: `Identifica mis fortalezas clave en [ÁREA PROFESIONAL], enfocándote en competencias para el cargo de [CARGO DESEADO] en [PAÍS]. Analiza cómo mis competencias en [COMPETENCIA 1] y [COMPETENCIA 2], junto con mis habilidades en [HABILIDAD 1] y [HABILIDAD 2], son valoradas por empleadores actuales con [AÑOS DE EXPERIENCIA] años de experiencia.`
+                }
+            ],
+            seguimiento: [
+                {
+                    titulo: "Seguimiento Post-Aplicación",
+                    texto: `Redacta un mensaje de seguimiento profesional para enviar una semana después de aplicar a un puesto de [CARGO DESEADO] en [PAÍS]. El mensaje debe expresar interés continuo, reafirmar mi valor agregado con [AÑOS DE EXPERIENCIA] años de experiencia en [COMPETENCIA 1] y [COMPETENCIA 2], destacando mis fortalezas en [HABILIDAD 1] y [HABILIDAD 2].`
+                }
+            ],
+            negociacion: [
+                {
+                    titulo: "Negociación Salarial Estratégica",
+                    texto: `Prepara una estrategia de negociación salarial para [CARGO DESEADO] en [PAÍS], enfocándote en mi experiencia de [AÑOS DE EXPERIENCIA] años en [ÁREA PROFESIONAL]. Incluye argumentos basados en valor agregado de mis competencias en [COMPETENCIA 1] y [COMPETENCIA 2], y cómo mis habilidades en [HABILIDAD 1] y [HABILIDAD 2] justifican mi propuesta de compensación.`
+                }
+            ]
+        };
+
+        // Función para inicializar habilidades blandas
+        function inicializarHabilidades() {
+            const skillsSelector = document.getElementById('skillsSelector');
+            skillsSelector.innerHTML = '';
+            
+            habilidadesBlandas.forEach(habilidad => {
+                const skillDiv = document.createElement('div');
+                skillDiv.className = 'skill-option';
+                skillDiv.textContent = habilidad;
+                skillDiv.onclick = () => toggleHabilidad(skillDiv, habilidad);
+                skillsSelector.appendChild(skillDiv);
+            });
+        }
+
+        function toggleHabilidad(element, habilidad) {
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                habilidadesSeleccionadas = habilidadesSeleccionadas.filter(h => h !== habilidad);
+            } else {
+                if (habilidadesSeleccionadas.length < 2) {
+                    element.classList.add('selected');
+                    habilidadesSeleccionadas.push(habilidad);
+                } else {
+                    mostrarNotificacion('Máximo 2 habilidades permitidas', 'warning');
+                }
+            }
+        }
+
+        // Función para actualizar cargos según área seleccionada
+        function actualizarCargos() {
+            const area = document.getElementById('areaProfesional').value;
+            const cargoSelect = document.getElementById('cargoDeseado');
+            const cargosSelector = document.getElementById('cargosSelector');
+            
+            cargosSeleccionados = [];
+            cargoSelect.innerHTML = '<option value="">Selecciona un cargo</option>';
+            cargosSelector.innerHTML = '';
+            
+            if (area && catalogoCargos[area]) {
+                catalogoCargos[area].forEach(cargo => {
+                    const option = document.createElement('option');
+                    option.value = cargo;
+                    option.textContent = cargo;
+                    cargoSelect.appendChild(option);
+                });
+
+                catalogoCargos[area].forEach(cargo => {
+                    const cargoDiv = document.createElement('div');
+                    cargoDiv.className = 'cargo-option';
+                    cargoDiv.textContent = cargo;
+                    cargoDiv.onclick = () => toggleCargo(cargoDiv, cargo);
+                    cargosSelector.appendChild(cargoDiv);
+                });
+            } else {
+                cargosSelector.innerHTML = '<div class="cargo-placeholder">Selecciona primero tu área profesional</div>';
+            }
+        }
+
+        // Función para actualizar competencias según cargo seleccionado
+        function actualizarCompetencias() {
+            const cargo = document.getElementById('cargoDeseado').value;
+            const competenciasSelector = document.getElementById('competenciasSelector');
+            
+            competenciasSeleccionadas = [];
+            competenciasSelector.innerHTML = '';
+            
+            if (cargo && competenciasPorCargo[cargo]) {
+                competenciasPorCargo[cargo].forEach(competencia => {
+                    const competenciaDiv = document.createElement('div');
+                    competenciaDiv.className = 'competencia-option';
+                    competenciaDiv.textContent = competencia;
+                    competenciaDiv.onclick = () => toggleCompetencia(competenciaDiv, competencia);
+                    competenciasSelector.appendChild(competenciaDiv);
+                });
+            } else {
+                competenciasSelector.innerHTML = '<div class="competencias-placeholder">Selecciona primero tu cargo deseado</div>';
+            }
+        }
+
+        function toggleCompetencia(element, competencia) {
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                competenciasSeleccionadas = competenciasSeleccionadas.filter(c => c !== competencia);
+            } else {
+                if (competenciasSeleccionadas.length < 2) {
+                    element.classList.add('selected');
+                    competenciasSeleccionadas.push(competencia);
+                } else {
+                    mostrarNotificacion('Máximo 2 competencias permitidas', 'warning');
+                }
+            }
+        }
+
+        function toggleCargo(element, cargo) {
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                cargosSeleccionados = cargosSeleccionados.filter(c => c !== cargo);
+            } else {
+                if (cargosSeleccionados.length < 2) {
+                    element.classList.add('selected');
+                    cargosSeleccionados.push(cargo);
+                } else {
+                    mostrarNotificacion('Máximo 2 cargos permitidos', 'warning');
+                }
+            }
+        }
+
+        function guardarPerfil() {
+            perfilUsuario = {
+                nombre: document.getElementById('nombreCompleto').value,
+                pais: document.getElementById('pais').value,
+                experiencia: document.getElementById('experiencia').value,
+                area: document.getElementById('areaProfesional').value,
+                cargo: document.getElementById('cargoDeseado').value,
+                habilidades: habilidadesSeleccionadas,
+                competencias: competenciasSeleccionadas
+            };
+
+            if (!perfilUsuario.nombre || !perfilUsuario.pais || !perfilUsuario.area) {
+                mostrarNotificacion('Por favor completa al menos el nombre, país y área profesional.', 'error');
+                return;
+            }
+
+            mostrarNotificacion('✅ Perfil guardado correctamente');
+        }
+
+        function buscarEmpleos() {
+            if (cargosSeleccionados.length === 0) {
+                mostrarNotificacion('Por favor selecciona al menos un cargo de interés.', 'error');
+                return;
+            }
+
+            mostrarNotificacion(`🔍 Búsqueda iniciada para: ${cargosSeleccionados.join(', ')}`);
+        }
+
+        function buscarEnPortal(portal) {
+            if (cargosSeleccionados.length === 0) {
+                mostrarNotificacion('Selecciona al menos un cargo antes de buscar.', 'error');
+                return;
+            }
+
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '';
+            searchResults.classList.add('show');
+
+            const cargo = cargosSeleccionados[0];
+            const pais = perfilUsuario.pais || 'Colombia';
+
+            // Simular resultados de búsqueda
+            const resultados = generarResultadosSimulados(portal, cargo, pais);
+            
+            resultados.forEach(resultado => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'search-result-item';
+                resultDiv.innerHTML = `
+                    <strong>${resultado.titulo}</strong><br>
+                    <small>${resultado.empresa} - ${resultado.ubicacion}</small><br>
+                    <small>💰 ${resultado.salario}</small>
+                `;
+                searchResults.appendChild(resultDiv);
+            });
+
+            // Abrir portal en nueva ventana
+            let url = '';
+            const cargoEncoded = encodeURIComponent(cargo);
+            
+            switch(portal) {
+                case 'elempleo':
+                    url = `https://www.elempleo.com/co/ofertas-empleo?q=${cargoEncoded}`;
+                    break;
+                case 'computrabajo':
+                    url = `https://co.computrabajo.com/trabajo-de-${cargoEncoded.toLowerCase().replace(/\s+/g, '-')}`;
+                    break;
+                case 'linkedin':
+                    url = `https://www.linkedin.com/jobs/search/?keywords=${cargoEncoded}&location=${pais}`;
+                    break;
+            }
+            
+            if (url) {
+                window.open(url, '_blank');
+            }
+
+            mostrarNotificacion(`🔍 Búsqueda realizada en ${portal.toUpperCase()}`);
+        }
+
+        function generarResultadosSimulados(portal, cargo, pais) {
+            const empresas = ['TechCorp', 'InnovaSoft', 'DataSolutions', 'CloudTech', 'DigitalPro'];
+            const ciudades = ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Bucaramanga'];
+            const salarios = ['$3.000.000 - $4.500.000', '$4.000.000 - $6.000.000', '$5.000.000 - $7.500.000'];
+            
+            return Array.from({length: 3}, (_, i) => ({
+                titulo: `${cargo} ${i + 1}`,
+                empresa: empresas[Math.floor(Math.random() * empresas.length)],
+                ubicacion: ciudades[Math.floor(Math.random() * ciudades.length)],
+                salario: salarios[Math.floor(Math.random() * salarios.length)]
+            }));
+        }
+
+        function mostrarPrompts(seccion) {
+            document.querySelectorAll('.prompt-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            const tabs = document.querySelectorAll('.prompt-tab');
+            tabs.forEach(tab => {
+                const tabText = tab.textContent.toLowerCase();
+                if (tabText.includes(seccion.toLowerCase()) || 
+                    (seccion === 'mercado' && tabText.includes('mercado')) ||
+                    (seccion === 'entrevistas' && tabText.includes('entrevistas')) ||
+                    (seccion === 'curriculum' && tabText.includes('currículum')) ||
+                    (seccion === 'cartas' && tabText.includes('cartas')) ||
+                    (seccion === 'filtrado' && tabText.includes('filtrado')) ||
+                    (seccion === 'habilidades' && tabText.includes('habilidades')) ||
+                    (seccion === 'seguimiento' && tabText.includes('seguimiento')) ||
+                    (seccion === 'negociacion' && tabText.includes('negociación'))) {
+                    tab.classList.add('active');
+                }
+            });
+
+            const container = document.getElementById('promptsContainer');
+            container.innerHTML = '';
+
+            if (prompts[seccion]) {
+                prompts[seccion].forEach((prompt, index) => {
+                    const promptDiv = document.createElement('div');
+                    promptDiv.className = 'prompt-item';
+                    
+                    let textoPersonalizado = personalizarPrompt(prompt.texto);
+                    
+                    promptDiv.innerHTML = `
+                        <div class="prompt-title">${index + 1}. ${prompt.titulo}</div>
+                        <div class="prompt-text" id="prompt-${seccion}-${index}">${textoPersonalizado}</div>
+                        <div class="prompt-actions">
+                            <button class="copy-btn" onclick="copiarPrompt('prompt-${seccion}-${index}')">
+                                📋 Copiar
+                            </button>
+                            <a href="https://copilot.microsoft.com/" target="_blank" class="ai-link copilot-link">
+                                🤖 Copilot
+                            </a>
+                            <a href="https://gemini.google.com/" target="_blank" class="ai-link gemini-link">
+                                ✨ Gemini
+                            </a>
+                        </div>
+                    `;
+                    
+                    container.appendChild(promptDiv);
+                });
+            }
+        }
+
+        function personalizarPrompt(texto) {
+            let textoPersonalizado = texto;
+            
+            // Personalizar con datos del usuario
+            if (perfilUsuario.area) {
+                textoPersonalizado = textoPersonalizado.replace(/\[ÁREA PROFESIONAL\]/g, `<span class="variable-text">${perfilUsuario.area}</span>`);
+            } else {
+                textoPersonalizado = textoPersonalizado.replace(/\[ÁREA PROFESIONAL\]/g, '<span class="variable-text">[ÁREA PROFESIONAL]</span>');
+            }
+            
+            if (perfilUsuario.cargo) {
+                textoPersonalizado = textoPersonalizado.replace(/\[CARGO DESEADO\]/g, `<span class="variable-text">${perfilUsuario.cargo}</span>`);
+                textoPersonalizado = textoPersonalizado.replace(/\[CARGO ESPECÍFICO\]/g, `<span class="variable-text">${perfilUsuario.cargo}</span>`);
+            } else {
+                textoPersonalizado = textoPersonalizado.replace(/\[CARGO DESEADO\]/g, '<span class="variable-text">[CARGO DESEADO]</span>');
+                textoPersonalizado = textoPersonalizado.replace(/\[CARGO ESPECÍFICO\]/g, '<span class="variable-text">[CARGO ESPECÍFICO]</span>');
+            }
+            
+            if (perfilUsuario.pais) {
+                textoPersonalizado = textoPersonalizado.replace(/\[PAÍS\]/g, `<span class="variable-text">${perfilUsuario.pais}</span>`);
+            } else {
+                textoPersonalizado = textoPersonalizado.replace(/\[PAÍS\]/g, '<span class="variable-text">[PAÍS]</span>');
+            }
+            
+            if (perfilUsuario.experiencia) {
+                textoPersonalizado = textoPersonalizado.replace(/\[AÑOS DE EXPERIENCIA\]/g, `<span class="variable-text">${perfilUsuario.experiencia}</span>`);
+            } else {
+                textoPersonalizado = textoPersonalizado.replace(/\[AÑOS DE EXPERIENCIA\]/g, '<span class="variable-text">[AÑOS DE EXPERIENCIA]</span>');
+            }
+
+            // Personalizar con competencias seleccionadas
+            if (competenciasSeleccionadas.length >= 1) {
+                textoPersonalizado = textoPersonalizado.replace(/\[COMPETENCIA 1\]/g, `<span class="variable-text">${competenciasSeleccionadas[0]}</span>`);
+            } else {
+                textoPersonalizado = textoPersonalizado.replace(/\[COMPETENCIA 1\]/g, '<span class="variable-text">[COMPETENCIA 1]</span>');
+            }
+            
+            if (competenciasSeleccionadas.length >= 2) {
+                textoPersonalizado = textoPersonalizado.replace(/\[COMPETENCIA 2\]/g, `<span class="variable-text">${competenciasSeleccionadas[1]}</span>`);
+            } else {
+                textoPersonalizado = textoPersonalizado.replace(/\[COMPETENCIA 2\]/g, '<span class="variable-text">[COMPETENCIA 2]</span>');
+            }
+
+            // Personalizar con habilidades seleccionadas
+            if (habilidadesSeleccionadas.length >= 1) {
+                textoPersonalizado = textoPersonalizado.replace(/\[HABILIDAD 1\]/g, `<span class="variable-text">${habilidadesSeleccionadas[0]}</span>`);
+            } else {
+                textoPersonalizado = textoPersonalizado.replace(/\[HABILIDAD 1\]/g, '<span class="variable-text">[HABILIDAD 1]</span>');
+            }
+            
+            if (habilidadesSeleccionadas.length >= 2) {
+                textoPersonalizado = textoPersonalizado.replace(/\[HABILIDAD 2\]/g, `<span class="variable-text">${habilidadesSeleccionadas[1]}</span>`);
+            } else {
+                textoPersonalizado = textoPersonalizado.replace(/\[HABILIDAD 2\]/g, '<span class="variable-text">[HABILIDAD 2]</span>');
+            }
+
+            return textoPersonalizado;
+        }
+
+        function copiarPrompt(promptId) {
+            const promptElement = document.getElementById(promptId);
+            const texto = promptElement.textContent || promptElement.innerText;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(texto).then(() => {
+                    mostrarNotificacion('✅ Prompt copiado al portapapeles');
+                }).catch(err => {
+                    console.error('Error al copiar:', err);
+                    copiarTextoFallback(texto);
+                });
+            } else {
+                copiarTextoFallback(texto);
+            }
+        }
+
+        function copiarTextoFallback(texto) {
+            const textArea = document.createElement('textarea');
+            textArea.value = texto;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                mostrarNotificacion('✅ Prompt copiado al portapapeles');
+            } catch (err) {
+                console.error('Error al copiar:', err);
+                mostrarNotificacion('❌ Error al copiar el prompt', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function mostrarNotificacion(mensaje, tipo = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = mensaje;
+            
+            if (tipo === 'error') {
+                notification.style.background = '#dc3545';
+            } else if (tipo === 'warning') {
+                notification.style.background = '#ffc107';
+                notification.style.color = '#000';
+            }
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function mostrarAyuda() {
+            mostrarNotificacion('Flujo: 1) Completa perfil 2) Selecciona 2 competencias 3) Elige 2 habilidades 4) Explora prompts 5) Copia y personaliza 6) Usa en IA. ¡Comienza por tu perfil!');
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarHabilidades();
+            mostrarPrompts('mercado');
+        });
+    </script>
+</body>
+</html>
